@@ -41,6 +41,6 @@ router.route("/update-details").patch(verifyJWT, updateUserDetails);
 router.route("/get-current-user").get(verifyJWT, getCurrentUser);
 router.route("/change-avatar").patch(verifyJWT, upload.single("avatar"), updateAvatar);
 router.route("/change-coverImage").patch(verifyJWT, upload.single("coverImage"), updateCoverImage);
-router.route("/c/:username").get(getChannelDetails);
+router.route("/get-user/:username").get(getChannelDetails);
 
 export default router;
