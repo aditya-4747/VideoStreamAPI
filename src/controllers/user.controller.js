@@ -1,7 +1,7 @@
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { User } from "../models/user.model.js";
 import ApiError from "../utils/ApiError.js";
-import { uploadOnCloudinary } from "../utils/Cloudinary.js";
+import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/Cloudinary.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 
@@ -142,7 +142,7 @@ const loginUser = asyncHandler( async (req,res) => {
 
 const logoutUser = asyncHandler(async (req,res) => {
     await User.findByIdAndUpdate(req.user._id, {
-        $set: { refreshToken: undefined }
+        $unset: { refreshToken: 1 }
     }, {
         new: true
     })
@@ -263,9 +263,14 @@ const updateAvatar = asyncHandler(async (req,res) => {
             {
                 $set: { avatar: avatar.url }
             },
-            { new: true }
+            { new: false } // Returns the old values
         ).select("-password");
-    
+
+        // Delete previously stored image from Cloudinary
+        const avatarName = user.avatar.split("/")[7];
+        const avatarPublicId = avatarName.split(".")[0];
+        await deleteFromCloudinary(avatarPublicId);
+
         return res
         .status(200)
         .json(
@@ -295,8 +300,13 @@ const updateCoverImage = asyncHandler(async (req,res) => {
             {
                 $set: { coverImage: coverImage.url }
             },
-            { new: true }
+            { new: false }
         ).select("-password");
+
+        // Delete previously stored image from Cloudinary
+        const coverImageName = user.coverImage.split("/")[7];
+        const coverImagePublicId = coverImageName.split(".")[0];
+        await deleteFromCloudinary(coverImagePublicId);
 
         return res
         .status(200)
@@ -387,5 +397,5 @@ export {
     getCurrentUser,
     updateAvatar,
     updateCoverImage,
-    getChannelDetails
+    getChannelDetails,
 }
