@@ -43,6 +43,8 @@ const registerUser = asyncHandler( async (req,res) => {
     }
 
     // check for avatar & coverImage
+    if(!Array.isArray(req.files.avatar))    throw new ApiError(400, "Avatar file is required")
+        
     const avatarLocalPath = req.files?.avatar[0]?.path;
     // const coverImageLocalPath = req.files?.coverImage[0]?.path;
 
@@ -93,6 +95,10 @@ const loginUser = asyncHandler( async (req,res) => {
 
     // get username and password from req.body
     const { username, email, password } = req.body;
+
+    if(req.cookies.accessToken){
+        throw new ApiError(403, "An user is already logged in.")
+    }
 
     if(!(username || email)) {
         throw new ApiError(400, "Username or email is required.")

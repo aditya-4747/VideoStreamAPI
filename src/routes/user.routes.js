@@ -32,15 +32,15 @@ router.route("/register").post(
 );
 
 router.route("/login").post(loginUser);
+router.route("/get-channel/:username").get(getChannelDetails);
 
 // Secured Routes
 router.route("/logout").post(verifyJWT, logoutUser);
-router.route("/refresh-token").post(refreshAccessToken);
+router.route("/refresh-token").post(verifyJWT, refreshAccessToken);
 router.route("/change-password").post(verifyJWT, changePassword);
 router.route("/update-details").patch(verifyJWT, updateUserDetails);
 router.route("/get-current-user").get(verifyJWT, getCurrentUser);
 router.route("/change-avatar").patch(verifyJWT, upload.single("avatar"), updateAvatar);
 router.route("/change-coverImage").patch(verifyJWT, upload.single("coverImage"), updateCoverImage);
-router.route("/get-user/:username").get(getChannelDetails);
 
 export default router;
