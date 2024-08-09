@@ -4,6 +4,7 @@ import ApiError from "../utils/ApiError.js";
 import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/Cloudinary.js";
 import ApiResponse from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
+import fs from "fs";
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -33,15 +34,6 @@ const registerUser = asyncHandler( async (req,res) => {
         throw new ApiError(400, "Credentials are required!")
     }
 
-    // check if user already exists using username & email
-    const existingUser = await User.findOne({
-        $or: [{ username }, { email }]
-    });
-
-    if(existingUser){
-        throw new ApiError(400, "User with username or email already exists.")
-    }
-
     // check for avatar & coverImage
     if(!Array.isArray(req.files.avatar))    throw new ApiError(400, "Avatar file is required")
         
@@ -55,6 +47,17 @@ const registerUser = asyncHandler( async (req,res) => {
 
     if(!avatarLocalPath){
         throw new ApiError(400, "Avatar is required!")
+    }
+
+    // check if user already exists using username & email
+    const existingUser = await User.findOne({
+        $or: [{ username }, { email }]
+    });
+
+    if(existingUser){
+        fs.unlinkSync(avatarLocalPath);
+        fs.unlinkSync(coverImageLocalPath);
+        throw new ApiError(400, "User with username or email already exists.")
     }
 
     // upload avatar & coverImage to cloudinary
