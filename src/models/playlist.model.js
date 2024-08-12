@@ -6,7 +6,8 @@ const playlistSchema = new Schema({
         required: true
     },
     description: {
-        type: String
+        type: String,
+        required: true
     },
     video: [
         {
@@ -19,5 +20,9 @@ const playlistSchema = new Schema({
         ref: "User"
     }
 }, { timestamps: true })
+
+playlistSchema.pre("save", (next) => {
+    next()
+})
 
 export const Playlist = mongoose.model("Playlist", playlistSchema);
