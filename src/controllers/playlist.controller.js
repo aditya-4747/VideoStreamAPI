@@ -56,21 +56,24 @@ const addVideos = asyncHandler(async (req,res) => {
     // TODO : Validate every Video ID
     // const existingVideos = await Video.aggregate([ {$group: { _id: "$_id" }} ])
 
-    videos.forEach(element => {
-        if(!isValidObjectId(element)){
-            throw new ApiError(400, "Video Id is invalid")
-        }
-        if(playlist.video.includes(element)){
-            throw new ApiError(400, "Video already exists in the playlist")
-        }
-        playlist.video.push(element)
+    const validVideos = videos.filter(videoId => {
+        return isValidObjectId(videoId) && !playlist.video.includes(videoId)
     })
-    playlist.save()
+
+    if (validVideos.length !== videos.length) {
+        throw new ApiError(400, "Some video IDs are invalid or already exist in the playlist");
+    }
+
+    const updatedPlaylist = await Playlist.findByIdAndUpdate(
+        playlistId,
+        { $push: { video: { $each: validVideos } } },
+        { new: true }
+    );
 
     return res
     .status(200)
     .json(
-        new ApiResponse(200, playlist, "Videos added successfully")
+        new ApiResponse(200, updatedPlaylist, "Videos added successfully")
     )
 })
 

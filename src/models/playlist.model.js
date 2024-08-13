@@ -21,8 +21,4 @@ const playlistSchema = new Schema({
     }
 }, { timestamps: true })
 
-playlistSchema.pre("save", (next) => {
-    next()
-})
-
 export const Playlist = mongoose.model("Playlist", playlistSchema);
