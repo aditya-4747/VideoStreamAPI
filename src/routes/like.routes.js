@@ -13,6 +13,6 @@ const router = Router();
 router.route("/like-video/:videoId").post(verifyJWT, toggleVideoLike)
 router.route("/like-comment/:commentId").post(verifyJWT, toggleCommentLike)
 router.route("/get-liked-videos").get(verifyJWT, getLikedVideos)
-router.route("/video-likes/:id").get(getLikesCount)
+router.route("/get-likes/:id").get(getLikesCount)
 
 export default router;
