@@ -200,6 +200,22 @@ const getVideos = asyncHandler(async (req,res) => {
                     ]
                 }
             },
+            {
+                $lookup: {
+                    from: "users",
+                    localField: "owner",
+                    foreignField: "_id",
+                    as: "owner",
+                    pipeline: [
+                        {
+                            $project: {
+                                username: 1,
+                                avatar: 1
+                            }
+                        }
+                    ]
+                }
+            },
             { $sort: { [sortBy]: parseInt(sortType) } },
             { $skip: parseInt((page-1)*limit) },
             { $limit: parseInt(limit) }
