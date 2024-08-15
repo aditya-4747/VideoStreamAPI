@@ -14,7 +14,6 @@ import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
-// router.route("/get-videos").get(getVideoList)
 router.route("/publish-video").post(
     verifyJWT,
     upload.fields([
