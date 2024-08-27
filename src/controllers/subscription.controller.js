@@ -68,7 +68,7 @@ const getSubscribers = asyncHandler(async (req,res) => {
 
 const getSubscriptions = asyncHandler(async (req,res) => {
     try {
-        const userId = req.params.userId;
+        const userId = req.user._id;
     
         if( !isValidObjectId(userId) ){
             throw new ApiError(400, "User ID is invalid")

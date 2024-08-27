@@ -13,6 +13,6 @@ router.use(verifyJWT) // It makes all routes to use verifyJWT
 
 router.route("/toggle-subscription/:channelId").patch(toggleSubscriptionStatus)
 router.route("/get-subscribers/:channelId").get(getSubscribers)
-router.route("/get-user-subscriptions/:userId").get(getSubscriptions)
+router.route("/get-user-subscriptions/").get(getSubscriptions)
 
 export default router;
