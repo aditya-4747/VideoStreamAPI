@@ -32,7 +32,7 @@ router.route("/register").post(
 );
 
 router.route("/login").post(loginUser);
-router.route("/get-channel/:username").get(getChannelDetails);
+router.route("/get-channel/:userId").get(getChannelDetails);
 router.route("/logout").post(verifyJWT, logoutUser);
 router.route("/refresh-token").post(verifyJWT, refreshAccessToken);
 router.route("/change-password").post(verifyJWT, changePassword);

@@ -16,14 +16,16 @@ const addComment = asyncHandler(async (req,res) => {
         throw new ApiError(400, "Valid video ID is required")
     }
 
-    const existingComment = await Comment.find({
-        video: videoId,
-        owner: req.user._id
-    })
+    // For single comment/user:
 
-    if(existingComment.length){
-        throw new ApiError(400, "A comment already exists")
-    }
+    // const existingComment = await Comment.find({
+    //     video: videoId,
+    //     owner: req.user._id
+    // })
+
+    // if(existingComment.length){
+    //     throw new ApiError(400, "A comment already exists")
+    // }
 
     const comment = await Comment.create({
         content,
@@ -87,7 +89,7 @@ const updateComment = asyncHandler(async (req,res) => {
 
 const getAllComments = asyncHandler(async (req,res) => {
     const videoId = req.params.videoId;
-    const { page=1, limit=10 } = req.query;
+    const { page=1, limit=10 } = req.query;    
 
     if(!videoId || !isValidObjectId(videoId)){
         throw new ApiError(400, "Valid video ID is required")
@@ -112,9 +114,42 @@ const getAllComments = asyncHandler(async (req,res) => {
     .json( new ApiResponse(200, comments, "Comments fetched successfully"))
 })
 
+const toggleLikeOnComment = asyncHandler(async (req, res) => {
+    try {
+        const commentId = req.params.commentId;
+    
+        if(!commentId || !isValidObjectId(commentId)){
+            throw new ApiError(400, "Valid comment ID is required")
+        }
+    
+        const comment = await Comment.findOne(new mongoose.Types.ObjectId(commentId));
+        if(!comment){
+            throw new ApiError(404, "Comment does not exist")
+        }
+
+        const hasLiked = comment.likedBy.includes(req.user._id);
+        const userObjectId = new mongoose.Types.ObjectId(req.user._id);
+
+        const response = await Comment.findByIdAndUpdate(
+            commentId,
+            hasLiked
+            ? { $pull: { likedBy: userObjectId } }
+            : { $addToSet: { likedBy: userObjectId } },
+            { new: true }
+        );
+        
+        return res
+        .status(200)
+        .json( new ApiResponse(200, response, hasLiked ? "Like removed successfully" : "Liked successfully"));
+    } catch (error) {
+        console.log(error);
+    }
+})
+
 export {
     addComment,
     removeComment,
     updateComment,
-    getAllComments
+    getAllComments,
+    toggleLikeOnComment
 }

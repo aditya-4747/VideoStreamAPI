@@ -43,43 +43,6 @@ const toggleVideoLike = asyncHandler(async (req,res) => {
     .json( new ApiResponse(200, videoLike, message) )
 })
 
-const toggleCommentLike = asyncHandler(async (req,res) => {
-    const commentId = req.params.commentId;
-
-    if( !commentId || !isValidObjectId(commentId) ){
-        throw new ApiError(400, "Valid comment ID is required")
-    }
-
-    const commentData = await Comment.findById(commentId);
-
-    if(!commentData){
-        throw new ApiError(404, "Comment does not exists")
-    }
-
-    let commentLike = await Like.findOneAndDelete({
-        comment: commentId,
-        likedBy: req.user._id
-    })
-
-    let message;
-
-    if( !commentLike ){
-
-        commentLike = await Like.create({
-            comment: commentId,
-            likedBy: req.user._id
-        })
-        message = "Comment liked"
-
-    } else {
-        message = "Comment disliked"
-    }
-
-    return res
-    .status(200)
-    .json( new ApiResponse(200, commentLike, message) )
-})
-
 const getLikedVideos = asyncHandler(async (req,res) => {
     const likedVideos = await Like.aggregate([
         {
@@ -142,7 +105,6 @@ const getLikesCount = asyncHandler(async (req,res) => {
 
 export {
     toggleVideoLike,
-    toggleCommentLike,
     getLikedVideos,
     getLikesCount
 }

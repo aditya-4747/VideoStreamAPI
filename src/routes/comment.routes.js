@@ -3,7 +3,8 @@ import {
     addComment,
     getAllComments,
     removeComment,
-    updateComment
+    updateComment,
+    toggleLikeOnComment
 } from "../controllers/comment.controller.js";
 
 import { verifyJWT } from "../middlewares/auth.middleware.js";
@@ -14,5 +15,6 @@ router.route("/add-comment/:videoId").post(verifyJWT, addComment)
 router.route("/remove-comment/:commentId").delete(verifyJWT, removeComment)
 router.route("/update-comment/:commentId").patch(verifyJWT, updateComment)
 router.route("/get-comments/:videoId").get(getAllComments)
+router.route("/toggle-like/:commentId").patch(verifyJWT, toggleLikeOnComment)
 
 export default router;

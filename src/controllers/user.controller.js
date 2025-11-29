@@ -5,6 +5,7 @@ import { uploadOnCloudinary, deleteFromCloudinary } from "../utils/Cloudinary.js
 import ApiResponse from "../utils/ApiResponse.js";
 import jwt from "jsonwebtoken";
 import fs from "fs";
+import mongoose, { isValidObjectId } from "mongoose";
 
 const generateAccessAndRefreshToken = async (userId) => {
     try {
@@ -326,16 +327,20 @@ const updateCoverImage = asyncHandler(async (req,res) => {
 })
 
 const getChannelDetails = asyncHandler(async (req,res) => {
-    const { username } = req.params;
+    const { userId } = req.params;    
 
-    if(!username?.trim()) {
-        throw new ApiError(404, "Username not found")
+    if(!userId) {
+        throw new ApiError(404, "UserID is required")
+    }    
+    
+    if(!isValidObjectId(new mongoose.Types.ObjectId(userId)) ){
+        throw new ApiError(400, "Invalid User ID")
     }
 
     const channel = await User.aggregate([
         {
             $match: {
-                username: username?.toLowerCase()
+                _id: new mongoose.Types.ObjectId(userId)
             }
         },
         {
