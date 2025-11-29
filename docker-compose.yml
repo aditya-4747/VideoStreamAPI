@@ -1,0 +1,19 @@
+version: '1.0'
+
+services:
+  api:
+    image: aditya4747/video_stream_api:1.1
+    depends_on:
+      - mongo
+    ports:
+      - 3000:3000
+    env_file:
+      - .env
+
+  mongo:
+    image: mongo:8
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=aditya
+      - MONGO_INITDB_ROOT_PASSWORD=aditya470@
