@@ -6,22 +6,43 @@ import ApiResponse from "../utils/ApiResponse.js";
 import mongoose, { isValidObjectId } from "mongoose";
 
 const publishVideo = asyncHandler(async (req,res) => {
-    if(!Array.isArray(req.files?.video))    throw new ApiError(400, "Video file is required")
-    if(!Array.isArray(req.files?.thumbnail))    throw new ApiError(400, "Thumbnail is required")
-
-    const videoLocalPath = req.files?.video[0].path;
-    const thumbnailLocalPath = req.files?.thumbnail[0].path;
     const { title, description } = req.body;
     
     if(!title) throw new ApiError(404, "Video title is required")
     if(!description) throw new ApiError(404, "Description is required")
+            
+    let uploadedVideo;
+    let thumbnail;
 
-    const uploadedVideo = await uploadOnCloudinary(videoLocalPath);
-    const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+    if(typeof req.body.dummy === String){
+        req.body.dummy = (req.body.dummy === "true" ? true : false)
+    }
 
-    if(!uploadedVideo)  throw new ApiError(400, "Video upload got failed")
-    if(!thumbnail)  throw new ApiError(400, "Thumbnail upload got failed")
-
+    // Testing through dummy parameter
+    if(req.body.dummy){
+        uploadedVideo = {
+            url: "http://dummy.video.com/test.mp4",
+            duration: "10"
+        }
+        thumbnail = {
+            url: "http://dummy.thumbnail.com/test.jpg"
+        }
+    }
+    else {
+        if(!Array.isArray(req.files?.video))    throw new ApiError(400, "Video file is required")
+        if(!Array.isArray(req.files?.thumbnail))    throw new ApiError(400, "Thumbnail is required")
+            
+        const videoLocalPath = req.files?.video[0].path;
+        const thumbnailLocalPath = req.files?.thumbnail[0].path;
+                
+        uploadedVideo = await uploadOnCloudinary(videoLocalPath);
+        thumbnail = await uploadOnCloudinary(thumbnailLocalPath);
+        
+        if(!uploadedVideo)  throw new ApiError(400, "Video upload got failed")
+        if(!thumbnail)  throw new ApiError(400, "Thumbnail upload got failed")
+        
+    }
+    
     const video = await Video.create({
         videoFile: uploadedVideo.url,
         thumbnail: thumbnail.url,
@@ -163,14 +184,19 @@ const deleteVideo = asyncHandler(async (req,res) => {
     }
 
     const video = await Video.findOneAndDelete(
-        { owner: new mongoose.Types.ObjectId(req.user._id) }
+        {
+            owner: new mongoose.Types.ObjectId(req.user._id),
+            _id: new mongoose.Types.ObjectId(videoId)
+        }
     );
 
     if(!video)  throw new ApiError(404, "Video not found")
-
-    const videoName = video.videoFile.split("/")[7];
-    const videoPublicId = videoName.split(".")[0];
-    await deleteFromCloudinary(videoPublicId);
+    
+    if(req.body.dummy === false){
+        const videoName = video.videoFile.split("/")[7];
+        const videoPublicId = videoName.split(".")[0];
+        await deleteFromCloudinary(videoPublicId);
+    }
     
     return res
     .status(200)

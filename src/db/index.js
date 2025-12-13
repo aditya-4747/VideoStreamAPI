@@ -5,7 +5,7 @@ async function connectDB() {
     try {
         await mongoose.connect(`${process.env.MONGODB_URI}/${DB_NAME}?authSource=admin`);
     } catch (error) {
-        console.error(`MongoDB connection FAILED : ${error}`);
+        console.error(`MongoDB connection Failed : ${error}`);
         process.exit(1);
     }
 }
