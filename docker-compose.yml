@@ -2,7 +2,7 @@ version: '1.0'
 
 services:
   api:
-    image: video_stream:1.0
+    image: aditya4747/video_stream_api:1.2
     depends_on:
       - mongo
     ports:
